@@ -10,6 +10,7 @@ export function createAccount(params: types.AccountParams) {
     const account: types.Account = {
         username,
         fullName,
+        type: types.AccountType.User,
         created: new Date().toISOString(),
         passwordHash: hashPassword(password, username) // Username is salt
     }
@@ -38,6 +39,21 @@ export function login(params: types.LoginParams) {
     })
 }
 
+export function createSession(clientId: ObjectId, requestedDataTypes: types.DataTypes[]) {
+    const session: types.Session = {
+        requestedDataTypes,
+        accountId: clientId
+    };
+    return DB.createSession(session).then(response => {
+        if (response.insertedCount <= 0) {
+            log('failed to insert record');
+            return Promise.reject('failed to insert record');
+        }
+        const record: types.SessionRecord = response.ops[0];
+        return Promise.resolve(record);
+    });
+}
+
 // Aux functions
 function hashPassword(password: string, salt: string) {
     // Password-Based Key Derivation Function 2
@@ -49,6 +65,7 @@ function createToken(accountId: ObjectId) {
     const token: types.Token = {
         _id: crypto.randomBytes(128).toString('hex'),
         accountId,
+        type: types.TokenType.User,
         created: new Date().toISOString()
     }
     return DB.createToken(token).then(response => {

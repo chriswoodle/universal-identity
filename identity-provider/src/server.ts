@@ -7,6 +7,8 @@ import * as joi from 'joi';
 import * as types from './types';
 import * as api from './api';
 
+import * as modelA from './routes/model-a'
+
 const log = require('debug')('app:server');
 
 const app = express();
@@ -17,7 +19,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => res.send('Hello World!'))
-
+app.use('/client', modelA.client);
+app.use('/user', modelA.user);
 app.post('/account', (req, res) => {
     const data = req.body;
 
