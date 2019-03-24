@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as request from 'request';
 
 import { ObjectId } from 'mongodb';
 
@@ -30,12 +31,12 @@ export const auth = function (tokenType: types.TokenType | types.TokenType[]) {
             // Attach account to request object for later use
             req.account = account;
             return Promise.resolve();
-        }).then(()=>{
+        }).then(() => {
             next();
         })
-        .catch(error => {
-            return res.status(error.code || 500).json({ message: error.message || '' });
-        })
+            .catch(error => {
+                return res.status(error.code || 500).json({ message: error.message || '' });
+            })
     }
     return middleware;
 }
@@ -55,4 +56,38 @@ export function validateParamId(paramName: string) {
         next();
     }
     return middleware;
+}
+
+export async function audit(accountId: string, action: string) {
+    const options = {
+        method: 'POST',
+        url: 'http://localhost:5000/transactions/new',
+        body:
+        {
+            userId: accountId,
+            userSecret: 'secret123',
+            action: action
+        },
+        json: true
+    };
+
+    request(options, (error, response, body) => {
+        if (error) throw new Error(error);
+        console.log(body);
+        mine();
+    });
+
+}
+
+function mine() {
+    const options = {
+        method: 'GET',
+        url: 'http://localhost:5000/mine',
+
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(error);
+        console.log(body);
+    });
 }

@@ -7,7 +7,6 @@ import * as types from '../types';
 
 import * as connector from '../connector';
 import { DB } from '../database';
-import { ObjectId } from 'bson';
 
 const log = require('debug')('app:model-a');
 
@@ -20,6 +19,7 @@ function retrieveResource(req: express.Request, res: express.Response) {
     const account = req.account!;
     log(account._id);
     const keyId = req.params['keyId'];
+    utils.audit(account._id.toHexString(), `retrieveResource: ${keyId}`);
     api.retrieveAndExecuteSession(keyId).then(sessionId=> {
         DB.getSession({ _id: sessionId }).then(record => {
             if (!record) return res.status(404).json({
@@ -60,6 +60,8 @@ function createKey(req: express.Request, res: express.Response) {
             message: 'Invalid request data',
             data: data
         });
+    utils.audit(account._id.toHexString(), `creted key: ${result.value.key}`);
+
     api.createSession(account._id, result.value.types, result.value.key).then(record => {
         res.send(record);
     })

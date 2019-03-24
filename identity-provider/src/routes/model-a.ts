@@ -31,7 +31,9 @@ function createSession(req: express.Request, res: express.Response) {
             message: 'Invalid request data',
             data: data
         });
+
     api.createSession(account._id, result.value.types).then(record => {
+        utils.audit(account._id.toHexString(), `created session: ${record._id}`);
         res.send(record);
     })
 }
@@ -39,6 +41,7 @@ function createSession(req: express.Request, res: express.Response) {
 function querySession(req: express.Request, res: express.Response) {
     const account = req.account!;
     const sessionId = new ObjectId(req.params['sessionId']);
+    utils.audit(account._id.toHexString(), `requested session: ${sessionId}`);
     DB.getSession({ _id: sessionId, accountId: account._id }).then(record => {
         if (!record) return res.status(404).json({
             status: 'error',
@@ -75,6 +78,7 @@ function approveSession(req: express.Request, res: express.Response) {
     const account = req.account!;
     log(account._id);
     const sessionId = new ObjectId(req.params['sessionId']);
+    utils.audit(account._id.toHexString(), `approved session: ${sessionId}`);
     api.approveSession(sessionId, account._id).then(() => {
         return res.send({
             message: 'Approved'
@@ -91,6 +95,7 @@ function rejectSession(req: express.Request, res: express.Response) {
     const account = req.account!;
     log(account._id);
     const sessionId = new ObjectId(req.params['sessionId']);
+    utils.audit(account._id.toHexString(), `rejected session: ${sessionId}`);
     api.rejectSession(sessionId).then(() => {
         return res.send({
             message: 'Rejected'
