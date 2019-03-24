@@ -12,3 +12,5 @@ Universal Identity or u-ID for short, is a digital identity platform that is int
 ## Model B
 ![model B](https://raw.githubusercontent.com/chriswoodle/universal-identity/master/graphics/temp-key-ssd.png)
 
+## Provisioning Devices
+![provision](https://raw.githubusercontent.com/chriswoodle/universal-identity/master/graphics/device-provision.png)
