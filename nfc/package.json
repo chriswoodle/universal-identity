@@ -1,0 +1,17 @@
+{
+  "name": "uid-nfc-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "debug": "nodemon -r dotenv/config index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "^4.1.1",
+    "dotenv": "^7.0.0",
+    "nfc-pcsc": "^0.7.1",
+    "request": "^2.88.0"
+  }
+}
