@@ -14,3 +14,8 @@ Universal Identity or u-ID for short, is a digital identity platform that is int
 
 ## Provisioning Devices
 ![provision](https://raw.githubusercontent.com/chriswoodle/universal-identity/master/graphics/device-provision.png)
+
+# Team
+Chris Woodle 
+Nick Silva
+Muntaser Syed

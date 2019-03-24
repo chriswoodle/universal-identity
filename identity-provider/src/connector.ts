@@ -20,8 +20,9 @@ export function getSessionResults(sessionId: ObjectId) {
 }
 
 export function processData(sessionId: ObjectId, accountId: ObjectId, resourceTypes: types.DataTypes[]) {
+    log('processData', resourceTypes, accountId);
     const dispatches = resourceTypes.map(type => {
-        switch (type) {
+        switch (type.toLowerCase()) {
             case types.DataTypes.Age:
                 return getAge(accountId);
             case types.DataTypes.Over21:
@@ -33,12 +34,14 @@ export function processData(sessionId: ObjectId, accountId: ObjectId, resourceTy
         }
     });
 
-    Promise.all(dispatches).then(results => {
+    return Promise.all(dispatches).then(results => {
+        log(results)
         resultCache[sessionId.toHexString()] = results;
-        DB.updateSession({ _id: sessionId }, { $set: { status: types.SessionStatus.Complete } }).then(response => {
+        return DB.updateSession({ _id: sessionId }, { $set: { status: types.SessionStatus.Complete } }).then(response => {
             if (response.result.n == 0) {
                 log('failed to update session');
             }
+            return Promise.resolve();
         });
     });
 
@@ -46,7 +49,11 @@ export function processData(sessionId: ObjectId, accountId: ObjectId, resourceTy
 
 function getAge(accountId: ObjectId) {
     return new Promise<number>((resolve, reject) => {
-        resolve(23);
+        DB.getAccount({ _id: accountId }).then(record => {
+            log(record);
+            const age = record!.age;
+            resolve(age);
+        })
     })
 };
 

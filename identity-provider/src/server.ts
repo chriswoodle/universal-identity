@@ -7,7 +7,8 @@ import * as joi from 'joi';
 import * as types from './types';
 import * as api from './api';
 
-import * as modelA from './routes/model-a'
+import * as modelA from './routes/model-a';
+import * as modelB from './routes/model-b';
 
 const log = require('debug')('app:server');
 
@@ -18,9 +19,15 @@ app.use(morgan(':method :url :status - :response-time ms'));
 app.use(cors());
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => res.send('Hello World!'))
+app.get('/', (req, res) => res.send('Hello World!'));
+
+// Register model A routes
 app.use('/client', modelA.client);
 app.use('/user', modelA.user);
+
+// Register model B routes
+app.use('/client', modelB.client);
+app.use('/user', modelB.user);
 app.post('/account', (req, res) => {
     const data = req.body;
 

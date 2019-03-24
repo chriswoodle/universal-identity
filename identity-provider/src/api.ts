@@ -1,6 +1,7 @@
 import { DB } from './database';
 import * as types from './types';
 import * as crypto from 'crypto';
+import * as connector from './connector';
 import { ObjectId } from 'bson';
 
 const log = require('debug')('app:api');
@@ -39,11 +40,12 @@ export function login(params: types.LoginParams) {
     });
 }
 
-export function createSession(clientId: ObjectId, requestedDataTypes: types.DataTypes[]) {
+export function createSession(clientId: ObjectId, requestedDataTypes: types.DataTypes[], key?: string) {
     const session: types.Session = {
         requestedDataTypes,
         accountId: clientId,
-        status: types.SessionStatus.Pending
+        status: types.SessionStatus.Pending,
+        key
     };
     return DB.createSession(session).then(response => {
         if (response.insertedCount <= 0) {
@@ -55,15 +57,19 @@ export function createSession(clientId: ObjectId, requestedDataTypes: types.Data
     });
 }
 
-export function approveSession(sessionId: ObjectId) {
+export function approveSession(sessionId: ObjectId, accountId: ObjectId, waitForComplete?: boolean) {
     log(sessionId)
     return DB.updateSession({ _id: sessionId }, { $set: { status: types.SessionStatus.Approved } }).then(response => {
         if (response.result.n == 0) {
             log('failed to update session');
             return Promise.reject('failed to update session');
         }
+        return DB.getSession({ _id: sessionId })
+    }).then(record => {
         // Start async process
-        return Promise.resolve();
+        if (waitForComplete) return connector.processData(sessionId, accountId, record!.requestedDataTypes).then(() => Promise.resolve(sessionId))
+        else connector.processData(sessionId, accountId, record!.requestedDataTypes);
+        return Promise.resolve(sessionId);
     });
 }
 
@@ -73,8 +79,15 @@ export function rejectSession(sessionId: ObjectId) {
             log('failed to update session');
             return Promise.reject('failed to update session');
         }
-        return Promise.resolve();
+        return Promise.resolve(sessionId);
     });
+}
+
+export function retrieveAndExecuteSession(keyId: string) {
+    return DB.getSession({ key: keyId }).then(record => {
+        if (!record) return Promise.reject('could not find key');
+        return approveSession(record._id, record.accountId!, true);
+    })
 }
 
 // Aux functions

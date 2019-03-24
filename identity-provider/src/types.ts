@@ -31,6 +31,7 @@ export interface Account {
     fullName?: string;
     type: AccountType;
     created: string;
+    age?: number;
 }
 
 export interface AccountRecord extends Account {
@@ -59,6 +60,7 @@ export enum DataTypes {
 
 export interface SessionParams {
     types: DataTypes[]
+    key: string
 }
 
 export enum SessionStatus {
@@ -71,7 +73,8 @@ export enum SessionStatus {
 export interface Session {
     requestedDataTypes: DataTypes[]
     status: SessionStatus
-    accountId?: ObjectId
+    accountId?: ObjectId;
+    key?: string;
 }
 
 export interface SessionRecord extends Session {

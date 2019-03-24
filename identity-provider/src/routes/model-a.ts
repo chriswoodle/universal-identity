@@ -75,7 +75,7 @@ function approveSession(req: express.Request, res: express.Response) {
     const account = req.account!;
     log(account._id);
     const sessionId = new ObjectId(req.params['sessionId']);
-    api.approveSession(sessionId).then(() => {
+    api.approveSession(sessionId, account._id).then(() => {
         return res.send({
             message: 'Approved'
         });
