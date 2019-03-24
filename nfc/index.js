@@ -35,8 +35,15 @@ nfc.on('reader', reader => {
         log(options);
         request(options, (error, response, body) => {
             if (error) throw new Error(error);
-
+            console.log('-----RESPONSE-------')
             console.log(body);
+            console.log('-----Data-------')
+            try {
+                body = JSON.parse(body)
+                console.log(body.results);
+            } catch (error) {
+
+            }
         });
 
     });
