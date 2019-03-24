@@ -77,20 +77,32 @@ function approveSession(req: express.Request, res: express.Response) {
     const account = req.account!;
     log(account._id);
     const sessionId = new ObjectId(req.params['sessionId']);
+    api.approveSession(sessionId).then(() => {
+        return res.send({
+            message: 'Approved'
+        });
+    }).catch(error => {
+        return res.status(400).json({
+            status: 'error',
+            data: error
+        });
+    })
 }
 
 function rejectSession(req: express.Request, res: express.Response) {
     const account = req.account!;
     log(account._id);
-    let sessionId: ObjectId
-    try {
-        sessionId = new ObjectId(req.params['sessionId'])
-    } catch (error) {
+    const sessionId = new ObjectId(req.params['sessionId']);
+    api.rejectSession(sessionId).then(() => {
+        return res.send({
+            message: 'Rejected'
+        });
+    }).catch(error => {
         return res.status(400).json({
             status: 'error',
-            message: 'Invalid sessionId',
+            data: error
         });
-    }
+    })
 }
 
 

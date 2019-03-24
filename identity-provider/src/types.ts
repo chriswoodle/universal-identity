@@ -61,8 +61,16 @@ export interface SessionParams {
     types: DataTypes[]
 }
 
+export enum SessionStatus {
+    Pending = 'pending',
+    Rejected = 'rejected',
+    Approved = 'approved',
+    Complete = 'complete'
+}
+
 export interface Session {
     requestedDataTypes: DataTypes[]
+    status: SessionStatus
     accountId?: ObjectId
 }
 

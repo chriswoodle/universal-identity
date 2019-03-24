@@ -36,13 +36,14 @@ export function login(params: types.LoginParams) {
             return Promise.reject('incorrect credentials');
         }
         return createToken(record._id)
-    })
+    });
 }
 
 export function createSession(clientId: ObjectId, requestedDataTypes: types.DataTypes[]) {
     const session: types.Session = {
         requestedDataTypes,
-        accountId: clientId
+        accountId: clientId,
+        status: types.SessionStatus.Pending
     };
     return DB.createSession(session).then(response => {
         if (response.insertedCount <= 0) {
@@ -54,12 +55,26 @@ export function createSession(clientId: ObjectId, requestedDataTypes: types.Data
     });
 }
 
-export function approveSession() {
-
+export function approveSession(sessionId: ObjectId) {
+    log(sessionId)
+    return DB.updateSession({ _id: sessionId }, { $set: { status: types.SessionStatus.Approved } }).then(response => {
+        if (response.result.n == 0) {
+            log('failed to update session');
+            return Promise.reject('failed to update session');
+        }
+        // Start async process
+        return Promise.resolve();
+    });
 }
 
-export function rejectSession() {
-    
+export function rejectSession(sessionId: ObjectId) {
+    return DB.updateSession({ _id: sessionId }, { $set: { status: types.SessionStatus.Rejected } }).then(response => {
+        if (response.result.n == 0) {
+            log('failed to update session');
+            return Promise.reject('failed to update session');
+        }
+        return Promise.resolve();
+    });
 }
 
 // Aux functions

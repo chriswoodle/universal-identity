@@ -1,6 +1,6 @@
 
 
-import { MongoClient, Db, ObjectId } from 'mongodb';
+import { MongoClient, Db, ObjectId, UpdateQuery } from 'mongodb';
 
 import * as types from './types';
 
@@ -48,8 +48,8 @@ class Database {
         return this.db.collection<types.SessionRecord>(Collections.Sessions).findOne(session);
     }
 
-    public updateSession() {
-
+    public updateSession(query: Partial<types.SessionRecord>, update: UpdateQuery<types.SessionRecord>) {
+        return this.db.collection<types.SessionRecord>(Collections.Sessions).updateOne(query, update);
     }
 }
 
