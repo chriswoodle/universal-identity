@@ -4,6 +4,8 @@ import * as joi from 'joi';
 import * as utils from '../utils';
 import * as api from '../api';
 import * as types from '../types';
+
+import * as connector from '../connector';
 import { DB } from '../database';
 import { ObjectId } from 'bson';
 
@@ -19,11 +21,9 @@ function createSession(req: express.Request, res: express.Response) {
     const account = req.account!;
     log(account._id);
     const data = req.body;
-
     const schema = joi.object().keys({
         types: joi.array().items(joi.string()).required()
     });
-
     const result = joi.validate<types.SessionParams>(data, schema);
     if (result.error)
         return res.status(400).json({
@@ -31,7 +31,6 @@ function createSession(req: express.Request, res: express.Response) {
             message: 'Invalid request data',
             data: data
         });
-
     api.createSession(account._id, result.value.types).then(record => {
         res.send(record);
     })
@@ -39,22 +38,21 @@ function createSession(req: express.Request, res: express.Response) {
 
 function querySession(req: express.Request, res: express.Response) {
     const account = req.account!;
-
     const sessionId = new ObjectId(req.params['sessionId']);
-
     DB.getSession({ _id: sessionId, accountId: account._id }).then(record => {
         if (!record) return res.status(404).json({
             status: 'error',
             message: 'Could not find session',
         });
-
-        res.send(record);
+        res.send({
+            session: record,
+            results: connector.getSessionResults(sessionId)
+        });
     });
 }
 
 
 export const user = express.Router();
-
 user
     .use(utils.auth(types.TokenType.User))
     .get('/session/:sessionId', utils.validateParamId('sessionId'), sessionInfo)
