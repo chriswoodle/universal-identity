@@ -13,7 +13,7 @@ export const client = express.Router();
 client
     .use(utils.auth(types.TokenType.Client))
     .post('/session', createSession)
-    .get('/session/:sessionId', querySession)
+    .get('/session/:sessionId', utils.validateParamId('sessionId'), querySession)
 
 function createSession(req: express.Request, res: express.Response) {
     const account = req.account!;
@@ -40,16 +40,8 @@ function createSession(req: express.Request, res: express.Response) {
 function querySession(req: express.Request, res: express.Response) {
     const account = req.account!;
 
-    let sessionId: ObjectId 
-    try {   
-        sessionId = new ObjectId(req.params['sessionId'])
-    } catch (error) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid sessionId',
-        });
-    }
-    
+    const sessionId = new ObjectId(req.params['sessionId']);
+
     DB.getSession({ _id: sessionId, accountId: account._id }).then(record => {
         if (!record) return res.status(404).json({
             status: 'error',
@@ -65,23 +57,41 @@ export const user = express.Router();
 
 user
     .use(utils.auth(types.TokenType.User))
-    .get('/session/:sessionId', sessionInfo)
-    .post('/session/:sessionId/approve', approveSession)
-    .post('/session/:sessionId/reject', rejectSession)
+    .get('/session/:sessionId', utils.validateParamId('sessionId'), sessionInfo)
+    .post('/session/:sessionId/approve', utils.validateParamId('sessionId'), approveSession)
+    .post('/session/:sessionId/reject', utils.validateParamId('sessionId'), rejectSession)
 
 
 function sessionInfo(req: express.Request, res: express.Response) {
-
+    const sessionId = new ObjectId(req.params['sessionId']);
+    DB.getSession({ _id: sessionId }).then(record => {
+        if (!record) return res.status(404).json({
+            status: 'error',
+            message: 'Could not find session',
+        });
+        res.send(record);
+    });
 }
 
 function approveSession(req: express.Request, res: express.Response) {
-
+    const account = req.account!;
+    log(account._id);
+    const sessionId = new ObjectId(req.params['sessionId']);
 }
 
 function rejectSession(req: express.Request, res: express.Response) {
-
+    const account = req.account!;
+    log(account._id);
+    let sessionId: ObjectId
+    try {
+        sessionId = new ObjectId(req.params['sessionId'])
+    } catch (error) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid sessionId',
+        });
+    }
 }
-
 
 
 

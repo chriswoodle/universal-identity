@@ -1,5 +1,7 @@
 import * as express from 'express';
 
+import { ObjectId } from 'mongodb';
+
 import * as types from './types';
 import { DB } from './database';
 
@@ -34,6 +36,23 @@ export const auth = function (tokenType: types.TokenType | types.TokenType[]) {
         .catch(error => {
             return res.status(error.code || 500).json({ message: error.message || '' });
         })
+    }
+    return middleware;
+}
+
+// objectId url param validator middleware generator
+export function validateParamId(paramName: string) {
+    const middleware: express.Handler = (req, res, next) => {
+        let id: ObjectId
+        try {
+            id = new ObjectId(req.params[paramName])
+        } catch (error) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Invalid sessionId',
+            });
+        }
+        next();
     }
     return middleware;
 }

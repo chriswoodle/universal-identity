@@ -54,6 +54,14 @@ export function createSession(clientId: ObjectId, requestedDataTypes: types.Data
     });
 }
 
+export function approveSession() {
+
+}
+
+export function rejectSession() {
+    
+}
+
 // Aux functions
 function hashPassword(password: string, salt: string) {
     // Password-Based Key Derivation Function 2
