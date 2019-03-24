@@ -2,7 +2,7 @@
 
 # Universal Identity
 
-Universal Identity or u-ID for short, is a digital identity platform that is interoperable and accepted by different requesting parties. Data, API's and other information related to a unique identity are accessable through a secure and permissioned interface.
+Universal Identity or u-ID for short, is a digital identity platform that is interoperable and accepted by different requesting parties. Data, API's and other information related to a unique identity are accessible through a secure and permissioned interface.
 
 # Workflow
 
